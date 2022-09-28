@@ -1,6 +1,10 @@
 const express = require("express")
 const path = require("path")
 const bodyParser = require("body-parser")
+require("dotenv").config()
+const config = require("./config")
+const randomRouter = require("./routes/randoms.route")
+const info = require("./controllers/info")
 const app = express()
 
 const bcrypt = require("bcrypt")
@@ -13,8 +17,10 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:false}))
 
 app.use(express.static(path.join(__dirname, "public")))
+app.use("/api/randoms", randomRouter)
 
-const mongo_uri = "mongodb://127.0.0.1/sessions2"
+//Con DOTENV:
+const mongo_uri = process.env.MONGO_URI
 
 mongoose.connect(mongo_uri, function(err){
     if (err) {
@@ -57,6 +63,10 @@ app.post("/authenticate", (req, res) => {
     })
 })
 
-app.listen(8080, () => {
-    console.log("Server listening...");
+app.get("/info", (req, res) => {
+    res.render("info", {info})
+})
+
+app.listen(config.PORT, () => {
+    console.log(`App listening on ${config.PORT}`);
 })
