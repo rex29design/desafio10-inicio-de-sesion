@@ -7,6 +7,11 @@ const randomRouter = require("./routes/randoms.route")
 const info = require("./controllers/info")
 const app = express()
 
+//Pino
+const logger = require("pino")()
+logger.level = "info"
+//
+
 const bcrypt = require("bcrypt")
 const mongoose = require("mongoose")
 const User = require("./model/user")
@@ -26,7 +31,8 @@ mongoose.connect(mongo_uri, function(err){
     if (err) {
         throw err
     } else {
-        console.log("Successfully connected to DB");
+        logger.info("Successfully connected to DB")
+        
     }
 })
 
@@ -35,8 +41,10 @@ app.post("/register", (req, res) => {
     const user = new User({username, password})
     user.save(err => {
         if(err){
+            logger.error("There was an error")
             res.render("error")
         } else {
+            logger.info("Info display correctly")
             res.render("user-registered")
         }
     })
@@ -46,8 +54,10 @@ app.post("/authenticate", (req, res) => {
     const {username, password} = req.body
     User.findOne({username}, (err, user) => {
         if(err){
+            logger.error("There was an error")
             res.render("error")
         } else if(!user){
+            logger.error("There was an error")
             res.render("error")
         } else {
             user.isCorrectPassword(password, (err, result) => {
@@ -56,6 +66,7 @@ app.post("/authenticate", (req, res) => {
                 } else if(result){
                     res.redirect("/user-login.html")
                 } else {
+                    logger.error("There was an error")
                     res.render("error")
                 }
             })
@@ -63,7 +74,10 @@ app.post("/authenticate", (req, res) => {
     })
 })
 
+
+
 app.get("/info", (req, res) => {
+    logger.info("Info display correctly")
     res.render("info", {info})
 })
 
